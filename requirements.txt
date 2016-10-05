@@ -1,0 +1,11 @@
+cachetools
+celery==4.0.0rc4
+flask
+Flask-Script
+Flask-Uploads
+Pillow
+redis
+simplejson
+subprocess32
+git+https://github.com/celery/billiard.git#egg=billiard
+git+https://github.com/celery/kombu.git#egg=kombu
