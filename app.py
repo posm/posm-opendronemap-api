@@ -44,7 +44,6 @@ app.config['UPLOADED_IMAGERY_DEST'] = UPLOADED_IMAGERY_DEST
 # Initialize Celery
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
-logger = get_task_logger(__name__)
 
 # Initialize Tus
 # TODO upload to a specific project id
