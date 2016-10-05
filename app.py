@@ -11,6 +11,7 @@ import uuid
 from cachetools.func import lru_cache
 from celery import Celery
 from flask import Flask, redirect, request, send_from_directory, jsonify, url_for
+from flask_cors import CORS
 from flask_uploads import UploadSet, configure_uploads
 from flask_tus import tus_manager
 from PIL import Image
@@ -34,6 +35,7 @@ if UPLOADED_IMAGERY_DEST[-1] != '/':
     UPLOADED_IMAGERY_DEST = UPLOADED_IMAGERY_DEST[:-1]
 
 app = Flask(__name__)
+CORS(app)
 app.config['APPLICATION_ROOT'] = APPLICATION_ROOT
 app.config['CELERY_BROKER_URL'] = CELERY_BROKER_URL
 app.config['CELERY_RESULT_BACKEND'] = CELERY_RESULT_BACKEND
