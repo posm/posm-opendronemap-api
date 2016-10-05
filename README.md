@@ -5,6 +5,14 @@ This is the [POSM](https://github.com/AmericanRedCross/posm) [OpenDroneMap](http
 * ingests JPEGs and PNGs shot from cameras transported by UAVs
 * generates 3D models and orthographic photos using OpenDroneMap
 
+## Building
+
+```bash
+docker build --rm -t posm-opendronemap-api .
+```
+
+See [Developing](#Developing) for additional instructions.
+
 ## Running
 
 First, start `redis-server` so that Docker containers can access it (so that Celery can use it as a
@@ -27,7 +35,7 @@ docker run \
   -v $(pwd)/projects:/app/projects \
   -v $(pwd)/uploads:/app/uploads \
   -p 8000:8000 \
-  imagery-api
+  posm-opendronemap-api
 ```
 
 This overrides the default `ENTRYPOINT` and starts the Celery daemon to run workers instead. Note
@@ -43,7 +51,7 @@ docker run \
   -v $(pwd)/projects:/app/projects \
   -v $(pwd)/uploads:/app/uploads \
   --entrypoint celery \
-  imagery-api \
+  posm-opendronemap-api \
   worker \
   -A app.celery \
   --loglevel=info
