@@ -312,8 +312,6 @@ def download_project_artifact(id, artifact_id):
 
 @app.route('/projects/<id>/process', methods=['POST'])
 def start_processing_project(id):
-    meta = get_metadata(id)
-
     task_info = '{}/{}/process.task'.format(PROJECTS_PATH, id)
 
     if os.path.exists(task_info) and not request.args.get('force'):
