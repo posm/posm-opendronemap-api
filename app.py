@@ -237,6 +237,7 @@ def get_metadata(id):
         metadata = {
             'images': [],
             'artifacts': [],
+            'status': {},
         }
 
     if os.path.exists(images_path):
@@ -245,7 +246,9 @@ def get_metadata(id):
     if os.path.exists(artifacts_path):
         metadata['artifacts'] = os.listdir(artifacts_path)
 
-    metadata['status'] = get_task_status(id)
+    status = get_task_status(id)
+    if status:
+        metadata['status'] = status
 
     return metadata
 
@@ -424,7 +427,8 @@ def get_project_status(id):
         return jsonify(fetch_status(task_id)), 200
 
     elif os.path.exists(os.path.dirname(task_info)):
-        return jsonify({}), 200
+        metadata = get_metadata(id)
+        return jsonify(metadata['status']), 200
 
     else:
         return '', 404
