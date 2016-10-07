@@ -320,6 +320,26 @@ def get_project_image_thumbnail(id, image_id):
     }
 
 
+@app.route('/projects/<id>/logs/stderr')
+def get_project_stderr(id):
+    return send_from_directory(
+        os.path.join(PROJECTS_PATH, id, 'logs'),
+        'stderr.log',
+        conditional=True,
+        mimetype='text/plain',
+    )
+
+
+@app.route('/projects/<id>/logs/stdout')
+def get_project_stdout(id):
+    return send_from_directory(
+        os.path.join(PROJECTS_PATH, id, 'logs'),
+        'stdout.log',
+        conditional=True,
+        mimetype='text/plain',
+    )
+
+
 @app.route('/projects/<id>/artifacts')
 def list_project_artifacts(id):
     return jsonify(get_metadata(id)['artifacts']), 200
