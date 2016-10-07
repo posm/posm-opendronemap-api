@@ -105,9 +105,10 @@ def process_project(self, id):
     ]
 
     def cleanup():
-        for dir in ('images_resize', 'odm_georeferencing', 'odm_meshing', 'odm_orthophoto', 'odm_texturing', 'opensfm', 'pmvs'):
+        for dir in ('images_resize', 'odm_georeferencing', 'odm_meshing', 'odm_orthophoto', 'odm_texturing', 'opensfm', 'pmvs', 'process.task'):
             target_path = os.path.join(project_path, dir)
-            os.path.exists(target_path) and shutil.rmtree(target_path)
+            os.path.isdir(target_path) and shutil.rmtree(target_path)
+            os.path.isfile(target_path) and os.unlink(target_path)
 
     started_at = datetime.utcnow()
 
@@ -165,8 +166,13 @@ def process_project(self, id):
         os.mkdir(artifacts_path)
 
     for artifact in ('odm_texturing', 'odm_orthophoto/odm_orthophoto.tif', 'odm_orthophoto/odm_orthophoto.png'):
-        src_path = '{}/{}'.format(project_path, artifact)
-        os.path.exists(src_path) and shutil.move(src_path, artifacts_path)
+        src_path = os.path.join(project_path, artifact)
+
+        if os.path.isdir(src_path):
+            for item in os.listdir(src_path):
+                shutil.move(os.path.join(src_path, item), artifacts_path)
+        else:
+            os.path.exists(src_path) and shutil.move(src_path, artifacts_path)
 
     # create a thumbnail
     im = Image.open(os.path.join(artifacts_path, 'odm_orthophoto.png'))
