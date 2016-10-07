@@ -181,6 +181,19 @@ def process_project(self, id):
     }
 
 
+def get_task_status(id):
+    task_info_path = '{}/{}/process.task'.format(PROJECTS_PATH, id)
+
+    if os.path.exists(task_info_path):
+        with open(task_info_path) as t:
+            task_id = t.read()
+
+        return fetch_status(task_id)
+
+    else:
+        return {}
+
+
 def get_metadata(id):
     project_path = '{}/{}'.format(PROJECTS_PATH, id)
     metadata_path = '{}/index.json'.format(project_path, id)
@@ -201,6 +214,8 @@ def get_metadata(id):
 
     if os.path.exists(artifacts_path):
         metadata['artifacts'] = os.listdir(artifacts_path)
+
+    metadata['status'] = get_task_status(id)
 
     return metadata
 
@@ -329,7 +344,7 @@ def cancel_processing_project(id):
     return '', 201
 
 
-def serialize_status(task_id):
+def fetch_status(task_id):
     result = celery.AsyncResult(task_id)
 
     status = {
@@ -341,21 +356,31 @@ def serialize_status(task_id):
     for _, node in result.iterdeps(intermediate=True):
         if hasattr(node, 'info'):
             if isinstance(node.info, Exception):
-                status['steps'].append(json.loads(node.info.message))
+                try:
+                    status['steps'].append(json.loads(node.info.message))
+                except:
+                    status['steps'].append(node.info.message)
             else:
                 status['steps'].append(node.info)
 
-    return jsonify(status)
+    return status
 
 
 @app.route('/projects/<id>/status')
 def get_project_status(id):
     task_info = '{}/{}/process.task'.format(PROJECTS_PATH, id)
 
-    with open(task_info) as t:
-        task_id = t.read()
+    if os.path.exists(task_info):
+        with open(task_info) as t:
+            task_id = t.read()
 
-    return serialize_status(task_id), 200
+        return jsonify(fetch_status(task_id)), 200
+
+    elif os.path.exists(os.path.dirname(task_info)):
+        return jsonify({}), 200
+
+    else:
+        return '', 404
 
 
 app.wsgi_app = DispatcherMiddleware(None, {
