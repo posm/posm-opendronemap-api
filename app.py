@@ -83,19 +83,19 @@ def upload_file_handler(upload_file_path, id=None, filename=None):
     if id is None:
         id = str(uuid.uuid4())
 
-    images_path = '{}/{}/images'.format(PROJECTS_PATH, id)
+    images_path = os.path.join(PROJECTS_PATH, id, 'images')
 
     if not os.path.exists(images_path):
         os.makedirs(images_path)
 
-    shutil.move(upload_file_path, '{}/{}'.format(images_path, filename))
+    shutil.move(upload_file_path, os.path.join(images_path, filename))
 
-    return '{}/images/{}'.format(id, filename)
+    return os.path.join(id, 'images', filename)
 
 
 @celery.task(bind=True)
 def process_project(self, id):
-    project_path = '{}/{}'.format(PROJECTS_PATH, id)
+    project_path = os.path.join(PROJECTS_PATH, id)
 
     command = [
         'python',
@@ -106,7 +106,7 @@ def process_project(self, id):
 
     def cleanup():
         for dir in ('images_resize', 'odm_georeferencing', 'odm_meshing', 'odm_orthophoto', 'odm_texturing', 'opensfm', 'pmvs'):
-            target_path = '{}/{}'.format(project_path, dir)
+            target_path = os.path.join(project_path, dir)
             os.path.exists(target_path) and shutil.rmtree(target_path)
 
     started_at = datetime.utcnow()
@@ -122,10 +122,10 @@ def process_project(self, id):
     child = None
 
     try:
-        log_path = '{}/logs'.format(project_path)
+        log_path = os.path.join(project_path, 'logs')
         os.path.exists(log_path) or os.mkdir(log_path)
-        with open('{}/stdout.log'.format(log_path), 'w+') as stdout:
-            with open('{}/stderr.log'.format(log_path), 'w+') as stderr:
+        with open(os.path.join(log_path, 'stdout.log'), 'w+') as stdout:
+            with open(os.path.join(log_path, 'stderr.log'), 'w+') as stderr:
                 # NOTE: this is used instead of check_call so that we can call terminate() on the
                 # child rather than assuming that signals will be passed through and be handled
                 # correctly
@@ -158,7 +158,7 @@ def process_project(self, id):
         raise
 
     # clean up and move artifacts
-    artifacts_path = '{}/artifacts'.format(project_path)
+    artifacts_path = os.path.join(project_path, 'artifacts')
     if os.path.exists(artifacts_path):
         shutil.rmtree(artifacts_path)
     else:
@@ -169,9 +169,9 @@ def process_project(self, id):
         os.path.exists(src_path) and shutil.move(src_path, artifacts_path)
 
     # create a thumbnail
-    im = Image.open('{}/odm_orthophoto.png'.format(artifacts_path))
+    im = Image.open(os.path.join(artifacts_path, 'odm_orthophoto.png'))
     im.thumbnail((128, 128))
-    im.save('{}/ortho_thumb.png'.format(artifacts_path))
+    im.save(os.path.join(artifacts_path, 'ortho_thumb.png'))
 
     with rasterio.drivers():
         with rasterio.open(os.path.join(artifacts_path, 'odm_orthophoto.tif')) as src:
@@ -207,7 +207,7 @@ def process_project(self, id):
 
 
 def get_task_status(id):
-    task_info_path = '{}/{}/process.task'.format(PROJECTS_PATH, id)
+    task_info_path = os.path.join(PROJECTS_PATH, id, 'process.task')
 
     if os.path.exists(task_info_path):
         with open(task_info_path) as t:
@@ -220,10 +220,9 @@ def get_task_status(id):
 
 
 def get_metadata(id):
-    project_path = '{}/{}'.format(PROJECTS_PATH, id)
-    metadata_path = '{}/index.json'.format(project_path, id)
-    images_path = '{}/images'.format(project_path)
-    artifacts_path = '{}/artifacts'.format(project_path)
+    metadata_path = os.path.join(PROJECTS_PATH, id, 'index.json')
+    images_path = os.path.join(PROJECTS_PATH, id, 'images')
+    artifacts_path = os.path.join(PROJECTS_PATH, id, 'artifacts')
 
     if os.path.exists(metadata_path):
         with open(metadata_path) as metadata:
@@ -267,7 +266,7 @@ def list_tasks():
 def list_projects():
     """List available projects"""
     projects = dict(map(lambda project: (project, get_metadata(project)), filter(
-        lambda project: os.path.isdir('{}/{}'.format(PROJECTS_PATH, project)), os.listdir(PROJECTS_PATH))))
+        lambda project: os.path.isdir(os.path.join(PROJECTS_PATH, project)), os.listdir(PROJECTS_PATH))))
 
     return jsonify(projects), 200
 
@@ -299,7 +298,7 @@ def list_project_images(id):
 
 @app.route('/projects/<id>/images/<image_id>')
 def download_project_image(id, image_id):
-    images_path = '{}/{}/images'.format(PROJECTS_PATH, id)
+    images_path = os.path.join(PROJECTS_PATH, id, 'images')
     return send_from_directory(
         images_path,
         image_id,
@@ -310,7 +309,7 @@ def download_project_image(id, image_id):
 @app.route('/projects/<id>/images/<image_id>/thumb')
 @lru_cache()
 def get_project_image_thumbnail(id, image_id):
-    im = Image.open('{}/{}/images/{}'.format(PROJECTS_PATH, id, image_id))
+    im = Image.open(os.path.join(PROJECTS_PATH, id, 'images', image_id))
     out = StringIO()
     im.thumbnail((128, 128))
     im.save(out, "jpeg")
@@ -347,9 +346,8 @@ def list_project_artifacts(id):
 
 @app.route('/projects/<id>/artifacts/<artifact_id>')
 def download_project_artifact(id, artifact_id):
-    artifacts_path = '{}/{}/artifacts'.format(PROJECTS_PATH, id)
     return send_from_directory(
-        artifacts_path,
+        os.path.join(PROJECTS_PATH, id, 'artifacts'),
         artifact_id,
         conditional=True
     )
@@ -357,7 +355,7 @@ def download_project_artifact(id, artifact_id):
 
 @app.route('/projects/<id>/process', methods=['POST'])
 def start_processing_project(id):
-    task_info = '{}/{}/process.task'.format(PROJECTS_PATH, id)
+    task_info = os.path.join(PROJECTS_PATH, id, 'process.task')
 
     if os.path.exists(task_info) and not request.args.get('force'):
         return jsonify({
@@ -377,7 +375,7 @@ def start_processing_project(id):
 
 @app.route('/projects/<id>/process', methods=['DELETE'])
 def cancel_processing_project(id):
-    task_info = '{}/{}/process.task'.format(PROJECTS_PATH, id)
+    task_info = os.path.join(PROJECTS_PATH, id, 'process.task')
 
     with open(task_info) as t:
         task_id = t.read()
@@ -411,7 +409,7 @@ def fetch_status(task_id):
 
 @app.route('/projects/<id>/status')
 def get_project_status(id):
-    task_info = '{}/{}/process.task'.format(PROJECTS_PATH, id)
+    task_info = os.path.join(PROJECTS_PATH, id, 'process.task')
 
     if os.path.exists(task_info):
         with open(task_info) as t:
