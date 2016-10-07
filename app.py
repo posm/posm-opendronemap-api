@@ -14,6 +14,8 @@ from flask import Flask, redirect, request, send_from_directory, jsonify, url_fo
 from flask_cors import CORS
 from flask_uploads import UploadSet, configure_uploads
 from flask_tus import tus_manager
+import rasterio
+from rasterio.warp import transform_bounds
 from PIL import Image
 from werkzeug.wsgi import DispatcherMiddleware
 
@@ -170,6 +172,29 @@ def process_project(self, id):
     im = Image.open('{}/odm_orthophoto.png'.format(artifacts_path))
     im.thumbnail((128, 128))
     im.save('{}/ortho_thumb.png'.format(artifacts_path))
+
+    with rasterio.drivers():
+        with rasterio.open(os.path.join(artifacts_path, 'odm_orthophoto.tif')) as src:
+            width = src.width
+            height = src.height
+            res = src.res
+
+            with open(os.path.join(project_path, 'index.json'), 'w') as metadata:
+                metadata.write(json.dumps({
+                    'status': {
+                        'state': 'SUCCESS',
+                    },
+                    'meta': {
+                        'width': src.width,
+                        'height': src.height,
+                        'resolution': src.res,
+                        'crs': str(src.crs),
+                        'crs_wkt': src.crs.wkt,
+                        'bounds': transform_bounds(src.crs, {'init': 'epsg:4326'}, *src.bounds),
+                        'size': os.stat(src.name).st_size,
+                    }
+                }))
+
 
     cleanup()
 

@@ -5,6 +5,7 @@ flask-cors
 Flask-Script
 Flask-Uploads
 Pillow
+rasterio
 redis
 simplejson
 subprocess32

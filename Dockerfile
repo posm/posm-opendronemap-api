@@ -8,9 +8,13 @@ RUN apt-get update && \
   apt-get install -y --no-install-recommends \
     build-essential \
     git \
+    libgdal-dev \
     python-dev \
+    python-numpy \
     python-pillow \
-    python-pip && \
+    python-pip \
+    python-setuptools \
+    python-wheel && \
   apt-get clean
 
 COPY requirements.txt /app/requirements.txt
