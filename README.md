@@ -110,13 +110,13 @@ list_routes`.
 * `GET /projects/<id>/images/<image id>` - Download a specific source image.
 * `GET /projects/<id>/images/<image id>/thumb` - Get a thumbnail for a specific image.
 * `POST /projects/<id>/process` - Request creation of OpenDroneMap artifacts.
+* `DELETE /projects/<id>/process` - Cancel a pending task.
 * `GET /projects/<id>/status` - Check on the status of artifact creation.
 * `PUT /projects/<id>/upload` - Upload imagery. Requires the image to be the `file` value of a
   `multipart/form-data` payload. E.g., `curl -X PUT -F "file=@image.jpg"
   http://localhost:8000/projects/<id>/upload`
 * `POST /projects/upload` - [tus.io](https://tus.io/) upload endpoint.
 * `GET /tasks` - List running tasks (raw).
-* `DELETE /tasks/<task id>` - Cancel a specific task.
 
 ## Environment Variables
 

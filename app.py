@@ -223,13 +223,6 @@ def list_tasks():
     return jsonify(status), 200
 
 
-@app.route('/tasks/<task_id>', methods=['DELETE'])
-def stop_task(task_id):
-    celery.control.revoke(task_id, terminate=True)
-
-    return '', 200
-
-
 @app.route('/projects')
 def list_projects():
     """List available projects"""
@@ -322,6 +315,18 @@ def start_processing_project(id):
     return '', 202, {
         'Location': url_for('get_project_status', id=id)
     }
+
+
+@app.route('/projects/<id>/process', methods=['DELETE'])
+def cancel_processing_project(id):
+    task_info = '{}/{}/process.task'.format(PROJECTS_PATH, id)
+
+    with open(task_info) as t:
+        task_id = t.read()
+
+    celery.control.revoke(task_id, terminate=True)
+
+    return '', 201
 
 
 def serialize_status(task_id):
