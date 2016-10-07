@@ -1,13 +1,13 @@
+billiard
 cachetools
 celery==4.0.0rc4
 flask
 flask-cors
 Flask-Script
 Flask-Uploads
+kombu==4.0.0rc4
 Pillow
 rasterio
 redis
 simplejson
 subprocess32
-git+https://github.com/celery/billiard.git#egg=billiard
-git+https://github.com/celery/kombu.git#egg=kombu
