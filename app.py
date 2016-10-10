@@ -185,22 +185,24 @@ def process_project(self, id):
             height = src.height
             res = src.res
 
-            with open(os.path.join(project_path, 'index.json'), 'w') as metadata:
-                metadata.write(json.dumps({
-                    'status': {
-                        'state': 'SUCCESS',
-                    },
-                    'meta': {
-                        'width': src.width,
-                        'height': src.height,
-                        'resolution': src.res,
-                        'crs': str(src.crs),
-                        'crs_wkt': src.crs.wkt,
-                        'bounds': transform_bounds(src.crs, {'init': 'epsg:4326'}, *src.bounds),
-                        'size': os.stat(src.name).st_size,
-                    }
-                }))
+            metadata = get_metadata(id)
 
+            metadata.update({
+                'status': {
+                    'state': 'SUCCESS',
+                },
+                'meta': {
+                    'width': src.width,
+                    'height': src.height,
+                    'resolution': src.res,
+                    'crs': str(src.crs),
+                    'crs_wkt': src.crs.wkt,
+                    'bounds': transform_bounds(src.crs, {'init': 'epsg:4326'}, *src.bounds),
+                    'size': os.stat(src.name).st_size,
+                }
+            })
+
+            save_metadata(id, metadata)
 
     cleanup()
 
@@ -238,6 +240,7 @@ def get_metadata(id):
             'images': [],
             'artifacts': [],
             'status': {},
+            'user': {},
         }
 
     if os.path.exists(images_path):
@@ -251,6 +254,11 @@ def get_metadata(id):
         metadata['status'] = status
 
     return metadata
+
+
+def save_metadata(id, metadata):
+    with open(os.path.join(PROJECTS_PATH, id, 'index.json'), 'w') as metadata_file:
+        metadata_file.write(json.dumps(metadata))
 
 
 @app.errorhandler(IOError)
@@ -280,10 +288,35 @@ def list_projects():
     return jsonify(projects), 200
 
 
-@app.route('/projects', methods=['POST', 'PUT'])
-def create_or_update_project():
-    # TODO add user-defined metadata to a project, e.g. a name
-    pass
+@app.route('/projects', methods=['PUT'])
+def create_project(id):
+    body = request.get_json(force=True)
+
+    id = str(uuid.uuid4())
+
+    metadata = get_metadata(id)
+
+    metadata['user'] = body
+
+    save_metadata(id, metadata)
+
+    return jsonify(metadata), 201
+
+
+@app.route('/projects/<id>', methods=['PATCH', 'POST'])
+def update_project(id):
+    body = request.get_json(force=True)
+
+    metadata = get_metadata(id)
+
+    if request.method == 'PATCH':
+        metadata['user'].update(body)
+    else:
+        metadata['user'] = body
+
+    save_metadata(id, metadata)
+
+    return jsonify(metadata), 200
 
 
 @app.route('/projects/<id>/upload', methods=['PUT'])
