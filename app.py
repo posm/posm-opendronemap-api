@@ -36,7 +36,7 @@ if PROJECTS_PATH[-1] == '/':
 if UPLOADED_IMAGERY_DEST[-1] != '/':
     UPLOADED_IMAGERY_DEST = UPLOADED_IMAGERY_DEST[:-1]
 
-app = Flask(__name__)
+app = Flask('posm-opendronemap-api')
 CORS(app)
 app.config['APPLICATION_ROOT'] = APPLICATION_ROOT
 app.config['CELERY_BROKER_URL'] = CELERY_BROKER_URL
