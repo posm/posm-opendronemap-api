@@ -128,6 +128,7 @@ list_routes`.
   both the API server and Celery workers. Defaults to `uploads/` (relative to the current working
   directory).
 * `CELERY_BROKER_URL` - Celery broker URL. Defaults to the value of `REDIS_URL`.
+* `CELERY_DEFAULT_QUEUE` - Default queue name. Defaults to `posm-opendronemap-api`.
 * `CELERY_RESULT_BACKEND` - Celery result backend URL. Defaults to the value of `REDIS_URL`.
 * `REDIS_URL` - Flask-Tus backend. Defaults to `redis://` (`localhost`, default port, default
   database).
