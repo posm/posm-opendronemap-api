@@ -141,7 +141,8 @@ def process_project(self, id):
             'status': 'Failed'
         }))
     except:
-        p.terminate()
+        if p:
+            p.terminate()
         raise
 
     # clean up and move artifacts
