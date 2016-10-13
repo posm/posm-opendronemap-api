@@ -5,6 +5,16 @@ This is the [POSM](https://github.com/AmericanRedCross/posm) [OpenDroneMap](http
 * ingests JPEGs and PNGs shot from cameras transported by UAVs
 * generates 3D models and orthographic photos using OpenDroneMap
 
+## General Workflow
+
+1. (create project)
+2. (upload imagery to a project)
+3. start processing (provide optional arguments)
+4. check status
+5. cancel processing
+6. list artifacts
+7. download artifacts
+
 ## Building
 
 ```bash

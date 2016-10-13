@@ -60,22 +60,6 @@ tm = tus_manager(app, upload_url='/projects/upload',
 imagery = UploadSet('imagery', ('jpg', 'png'))
 configure_uploads(app, (imagery,))
 
-## General Workflow
-# 1. (create project)
-# 2. (upload imagery to a project)
-# 3. start processing (provide optional arguments)
-# 4. check status
-# 5. list artifacts
-# 6. download artifacts
-
-# Also:
-# * cancel processing
-# * list tasks processing
-
-## Processing
-# 1. create output directories
-# 2. run ODM with an extremely long timeout and input/output directories mapped, log output
-# 3. thumbnail odm_orthophoto.png
 
 @tm.upload_file_handler
 def upload_file_handler(upload_file_path, id=None, filename=None):
