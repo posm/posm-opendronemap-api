@@ -81,6 +81,7 @@ def upload_file_handler(upload_file_path, id=None, filename=None):
 
 @celery.task(bind=True)
 def process_project(self, id):
+    started_at = datetime.utcnow()
     project_path = os.path.join(PROJECTS_PATH, id)
 
     command = [
@@ -91,12 +92,10 @@ def process_project(self, id):
     ]
 
     def cleanup():
-        for dir in ('images_resize', 'odm_georeferencing', 'odm_meshing', 'odm_orthophoto', 'odm_texturing', 'opensfm', 'pmvs', 'process.task'):
+        for dir in ('images_resize', 'odm_georeferencing', 'odm_meshing', 'odm_orthophoto', 'odm_texturing', 'opensfm', 'pmvs'):
             target_path = os.path.join(project_path, dir)
             os.path.isdir(target_path) and shutil.rmtree(target_path)
             os.path.isfile(target_path) and os.unlink(target_path)
-
-    started_at = datetime.utcnow()
 
     self.update_state(state='RUNNING',
                       meta={
@@ -109,8 +108,9 @@ def process_project(self, id):
     child = None
 
     try:
+        # start by cleaning up in case the previous run was cancelled
+        cleanup()
         log_path = os.path.join(project_path, 'logs')
-        p = None
 
         os.path.exists(log_path) or os.mkdir(log_path)
         with open(os.path.join(log_path, 'stdout.log'), 'w+') as stdout:
@@ -118,11 +118,11 @@ def process_project(self, id):
                 # NOTE: this is used instead of check_call so that we can call terminate() on the
                 # child rather than assuming that signals will be passed through and be handled
                 # correctly
-                p = subprocess.Popen(command, cwd=project_path, stdout=stdout, stderr=stderr)
-                p.wait(timeout=60*60*6)
+                child = subprocess.Popen(command, cwd=project_path, stdout=stdout, stderr=stderr)
+                child.wait(timeout=60*60*6)
     except subprocess.TimeoutExpired as e:
-        p.kill()
-        p.wait()
+        child.kill()
+        child.wait()
         cleanup()
 
         raise Exception(json.dumps({
@@ -143,8 +143,8 @@ def process_project(self, id):
             'status': 'Failed'
         }))
     except:
-        if p:
-            p.terminate()
+        if child:
+            child.terminate()
         raise
 
     # clean up and move artifacts
@@ -194,6 +194,7 @@ def process_project(self, id):
             save_metadata(id, metadata)
 
     cleanup()
+    os.unlink(os.path.join(project_path, "process.task"))
 
     return {
         'name': 'preprocess',
