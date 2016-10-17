@@ -110,6 +110,8 @@ def process_project(self, id):
 
     try:
         log_path = os.path.join(project_path, 'logs')
+        p = None
+
         os.path.exists(log_path) or os.mkdir(log_path)
         with open(os.path.join(log_path, 'stdout.log'), 'w+') as stdout:
             with open(os.path.join(log_path, 'stderr.log'), 'w+') as stderr:
