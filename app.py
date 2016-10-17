@@ -315,7 +315,9 @@ def upload_imagery(id):
 
     target_path = upload_file_handler(path, id=id)
 
-    return redirect(url_for('get_project', id=id))
+    return jsonify({
+        'project': url_for('get_project', id=id),
+    }), 200
 
 
 @app.route('/projects/<id>')
