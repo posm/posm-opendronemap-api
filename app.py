@@ -250,7 +250,7 @@ def save_metadata(id, metadata):
     metadata_path = os.path.join(PROJECTS_PATH, id, 'index.json')
 
     if not os.path.exists(os.path.dirname(metadata_path)):
-        os.makedirs(metadata_path)
+        os.makedirs(os.path.dirname(metadata_path))
 
     with open(metadata_path, 'w') as metadata_file:
         metadata_file.write(json.dumps(metadata))
