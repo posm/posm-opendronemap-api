@@ -279,7 +279,7 @@ def list_projects():
 
 
 @app.route('/projects', methods=['PUT'])
-def create_project(id):
+def create_project():
     body = request.get_json(force=True)
 
     id = str(uuid.uuid4())
