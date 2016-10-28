@@ -20,7 +20,7 @@ services:
       args:
         - http_proxy
     entrypoint: celery
-    command: worker -A app.celery --loglevel=info
+    command: worker -A app.celery --loglevel=info --concurrency=1
     environment:
       - REDIS_URL=redis://redis/
     volumes:
