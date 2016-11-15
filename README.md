@@ -1,3 +1,5 @@
+[![Docker Repository on Quay](https://quay.io/repository/mojodna/posm-opendronemap-api/status "Docker Repository on Quay")](https://quay.io/repository/mojodna/posm-opendronemap-api)
+
 # POSM OpenDroneMap API
 
 This is the [POSM](https://github.com/AmericanRedCross/posm) [OpenDroneMap](https://github.com/OpenDroneMap/OpenDroneMap) API. It does a few things:
