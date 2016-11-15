@@ -129,7 +129,6 @@ def process_project(self, id):
             'name': 'opendronemap',
             'started_at': started_at.isoformat(),
             'command': ' '.join(command),
-            'return_code': returncode,
             'status': 'Timed out'
         }))
     except subprocess.CalledProcessError as e:
