@@ -29,7 +29,7 @@ RUN pip install -r requirements.txt && \
 
 COPY . /app
 
-RUN chown nobody:nogroup /app/{projects,uploads}
+RUN mkdir -p /app/{projects,uploads} && chown nobody:nogroup /app/{projects,uploads}
 
 # override this accordingly; should be 2-4x $(nproc)
 ENV WEB_CONCURRENCY 4
