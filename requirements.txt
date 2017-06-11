@@ -1,10 +1,6 @@
 cachetools
 celery>=4.0,<5.0
-# werkzeug 0.12 branch (unreleased to-date), with Range support
-https://github.com/pallets/werkzeug/archive/0a23c94a352649655e2b1691c9008dd8082e752d.zip
-# flask
-# flask 0.12 branch (unreleased to-date), with Range support
-https://github.com/pallets/flask/archive/7186a5aaf571e1d08a617138867998cbea518522.zip
+flask>=0.12
 flask-cors
 Flask-Script
 Flask-Uploads

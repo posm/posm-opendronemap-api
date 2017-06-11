@@ -1,6 +1,8 @@
 FROM mojodna/opendronemap-minimal
 MAINTAINER Seth Fitzsimmons <seth@mojodna.net>
 
+ARG http_proxy
+
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && \
@@ -26,6 +28,8 @@ RUN pip install -r requirements.txt && \
   rm -rf /root/.cache
 
 COPY . /app
+
+RUN mkdir -p /app/{projects,uploads} && chown nobody:nogroup /app/{projects,uploads}
 
 # override this accordingly; should be 2-4x $(nproc)
 ENV WEB_CONCURRENCY 4
