@@ -170,10 +170,6 @@ def process_project(self, id):
 
     with rasterio.drivers():
         with rasterio.open(os.path.join(artifacts_path, 'odm_orthophoto.tif')) as src:
-            width = src.width
-            height = src.height
-            res = src.res
-
             metadata = get_metadata(id)
 
             metadata.update({
