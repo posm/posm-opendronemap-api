@@ -1,3 +1,8 @@
+# WebODM replaces POSM OpenDroneMap API
+We've replaced POSM OpenDroneMap API with WebODM starting with [POSM v0.8.0](https://github.com/posm/posm-build/releases/tag/v0.8.0). WebODM and the POSM OpenDroneMap API were started at around the same time; WebODM’s ambitions have always been much larger, but it wasn’t ready to be incorporated when we first included drone imagery processing capabilities. We’re very happy to be able to include it now. 
+
+------------
+
 [![Docker Repository on Quay](https://quay.io/repository/mojodna/posm-opendronemap-api/status "Docker Repository on Quay")](https://quay.io/repository/mojodna/posm-opendronemap-api)
 
 # POSM OpenDroneMap API
